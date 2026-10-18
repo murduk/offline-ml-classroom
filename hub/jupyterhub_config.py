@@ -5,6 +5,22 @@ import nativeauthenticator
 
 c = get_config()  # noqa: F821 -- provided by JupyterHub
 
+# Paths in "source" refer to the hosting laptop.
+courses_dir = os.environ["COURSES_DIR"]
+
+c.DockerSpawner.mounts = [
+    {
+        "type": "bind",
+        "source": courses_dir,
+        "target": target,
+        "read_only": True,
+    }
+    for target in [
+        "/opt/classroom/courses",
+        "/home/student/work/materials",
+    ]
+]
+
 admin = os.environ.get("ADMIN_USER", "instructor")
 if not re.fullmatch(r"[a-z][a-z0-9-]{0,30}", admin):
     raise ValueError("ADMIN_USER must be lowercase, start with a letter, and use at most 31 letters/digits/hyphens")
@@ -21,6 +37,7 @@ c.JupyterHub.shutdown_on_logout = False
 
 # Local accounts only: no OAuth provider, email verification, CAPTCHA, or CDN.
 c.JupyterHub.authenticator_class = "native"
+c.Authenticator.allow_all = True
 c.JupyterHub.template_paths = [os.path.join(os.path.dirname(nativeauthenticator.__file__), "templates")]
 c.Authenticator.admin_users = {admin}
 c.Authenticator.username_pattern = r"[a-z][a-z0-9-]{0,30}"

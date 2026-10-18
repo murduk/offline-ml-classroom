@@ -18,9 +18,11 @@ services:
       OPEN_SIGNUP: "${OPEN_SIGNUP:-false}"
       STUDENT_IMAGE: offline-ml-student:1.0
       DOCKER_NETWORK_NAME: offline-ml-network
+      COURSES_DIR: "${COURSES_DIR:?Set COURSES_DIR in .env}"
     volumes:
       - hub-data:/data
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./hub/jupyterhub_config.py:/etc/jupyterhub/jupyterhub_config.py:ro
     networks:
       classroom:
         aliases:
