@@ -1,0 +1,53 @@
+name: offline-ml-classroom
+
+services:
+  hub:
+    image: offline-ml-hub:1.0
+    pull_policy: never
+    build:
+      context: .
+      dockerfile: hub/Dockerfile
+    container_name: offline-ml-hub
+    restart: unless-stopped
+    ports:
+      - "${CLASSROOM_BIND_IP:-0.0.0.0}:${CLASSROOM_PORT:-8000}:8000"
+    environment:
+      ADMIN_USER: "${ADMIN_USER:-instructor}"
+      STUDENT_MEMORY_LIMIT: "${STUDENT_MEMORY_LIMIT:-2G}"
+      STUDENT_CPU_LIMIT: "${STUDENT_CPU_LIMIT:-1}"
+      OPEN_SIGNUP: "${OPEN_SIGNUP:-false}"
+      STUDENT_IMAGE: offline-ml-student:1.0
+      DOCKER_NETWORK_NAME: offline-ml-network
+    volumes:
+      - hub-data:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      classroom:
+        aliases:
+          - hub
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/hub/health', timeout=5)"]
+      interval: 15s
+      timeout: 6s
+      retries: 5
+      start_period: 20s
+    stop_grace_period: 60s
+
+  # Build target only. JupyterHub creates the real student containers dynamically.
+  student-image:
+    image: offline-ml-student:1.0
+    pull_policy: never
+    profiles: ["build"]
+    build:
+      context: .
+      dockerfile: student/Dockerfile
+    networks: [classroom]
+
+volumes:
+  hub-data:
+    name: offline-ml-hub-data
+
+networks:
+  classroom:
+    name: offline-ml-network
+    driver: bridge
