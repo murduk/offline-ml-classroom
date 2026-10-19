@@ -24,3 +24,4 @@ pymupdf          # PDF text-layer reading and page rendering
 docling          # Document layout analysis for scanned pages
 easyocr          # Optical character recognition
 certifi          # Up-to-date SSL certificates
+webrtcvad-wheels
