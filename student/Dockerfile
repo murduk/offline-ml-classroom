@@ -82,6 +82,18 @@ ENV HOME=/home/student \
     NUMEXPR_NUM_THREADS=1 \
     MPLBACKEND=module://matplotlib_inline.backend_inline
 
+# Download Docling's standard models while building online.
+RUN mkdir -p /opt/classroom/models/docling \
+    && docling-tools models download \
+        --output-dir /opt/classroom/models/docling \
+    && docling-tools models download easyocr \
+        --easyocr-lang en \
+        --output-dir /opt/classroom/models/docling \
+    && chmod -R a+rX /opt/classroom/models
+
+ENV DOCLING_ARTIFACTS_PATH=/opt/classroom/models/docling
+
+
 USER student
 WORKDIR /home/student/work
 

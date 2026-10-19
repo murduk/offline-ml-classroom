@@ -75,3 +75,6 @@ c.Spawner.environment = {
     "NUMEXPR_NUM_THREADS": "1",
     "MPLBACKEND": "module://matplotlib_inline.backend_inline",
 }
+c.Spawner.environment.update({
+    "NUMBA_CACHE_DIR": "/home/student/work/.cache/numba",
+})
